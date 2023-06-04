@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\ContabilidadFinanzas\Cuenta;
+use App\Models\ContabilidadFinanzas\DetalleTransaccion;
+use App\Models\ContabilidadFinanzas\Periodo;
+use App\Models\ContabilidadFinanzas\TipoCuenta;
+use App\Models\ContabilidadFinanzas\Transaccion;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,3 +38,10 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 });
+
+/* Contabilidad Finanzas */
+Route::resource('Transacciones', Transaccion::class);
+Route::resource('TipoCuentas', TipoCuenta::class);
+Route::resource('Cuentas', Cuenta::class);
+Route::resource('DetalleTransacciones', DetalleTransaccion::class);
+Route::resource('Periodos', Periodo::class);
