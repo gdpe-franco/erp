@@ -17,7 +17,9 @@ class DetalleTransaccionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'cuenta_id' => $this->faker->numberBetween(1, 94),
+            'transaccion_id' => $this->faker->numberBetween(1, 10),
+            'monto' => $this->faker->randomFloat(1, 1000, 999999)
         ];
     }
 }

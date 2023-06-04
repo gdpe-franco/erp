@@ -17,7 +17,8 @@ class TransaccionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'detalles' => $this->faker->sentence(4),
+            'fecha' => $this->faker->date(),
         ];
     }
 }
