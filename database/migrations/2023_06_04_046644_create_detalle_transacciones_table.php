@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('transaccion_id');
             $table->double('monto', 8, 2);
             $table->timestamps();
+            $table->softDeletes($column = 'deleted_at', $precision = 0);
+
             $table->foreign('cuenta_id')->references('id')->on('cuentas');
             $table->foreign('transaccion_id')->references('id')->on('transacciones');
         });

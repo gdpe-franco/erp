@@ -19,6 +19,8 @@ return new class extends Migration
             $table->double('saldo_inicial', 8, 2);
             $table->double('saldo_actual', 8, 2);
             $table->timestamps();
+            $table->softDeletes($column = 'deleted_at', $precision = 0);
+            
             $table->foreign('tipo_cuenta_id')->references('id')->on('tipo_cuentas');
         });
     }
