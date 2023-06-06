@@ -8,9 +8,17 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
+//PrimeVue
+import Menubar from 'primevue/menubar';
+
+// Pinia
+import { useMenuItemsStore } from '@/stores/menuItems.js';
+
 defineProps({
     title: String,
 });
+
+const useMenuItems = useMenuItemsStore()
 
 const showingNavigationDropdown = ref(false);
 
@@ -49,8 +57,9 @@ const logout = () => {
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
+                                    Panel Principal
                                 </NavLink>
+                                <Menubar :model="useMenuItems.items" class="bg-transparent"/>
                             </div>
                         </div>
 
