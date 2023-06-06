@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContabilidadFinanzas\Transaccion;
-use App\Http\Requests\StoreTransaccionRequest;
-use App\Http\Requests\UpdateTransaccionRequest;
+use App\Http\Requests\ContabilidadFinanzas\StoreTransaccionRequest;
+use App\Http\Requests\ContabilidadFinanzas\UpdateTransaccionRequest;
+use Inertia\Inertia;
 
 class TransaccionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Inertia::render('ContabilidadFinanzas/Transacciones/Index', [
+            'transacciones' => Transaccion::get()
+        ]);
+
     }
 
     /**

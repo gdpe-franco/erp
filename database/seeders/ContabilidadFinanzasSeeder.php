@@ -14,7 +14,7 @@ class ContabilidadFinanzasSeeder extends Seeder
      */
     public function run(): void
     {
-        /* Transaccion::factory(10)->create(); */
-        DetalleTransaccion::factory(20)->create();
+        /* Transaccion::factory(38)->create(); */
+        DetalleTransaccion::factory(38)->create();
     }
 }

@@ -1,10 +1,11 @@
 <?php
 
-use App\Models\ContabilidadFinanzas\Cuenta;
-use App\Models\ContabilidadFinanzas\DetalleTransaccion;
-use App\Models\ContabilidadFinanzas\Periodo;
-use App\Models\ContabilidadFinanzas\TipoCuenta;
-use App\Models\ContabilidadFinanzas\Transaccion;
+use App\Http\Controllers\ContabilidadFinanzas\ContabilidadFinanzasController;
+use App\Http\Controllers\CuentaController;
+use App\Http\Controllers\DetalleTransaccionController;
+use App\Http\Controllers\PeriodoController;
+use App\Http\Controllers\TipoCuentaController;
+use App\Http\Controllers\TransaccionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -40,8 +41,13 @@ Route::middleware([
 });
 
 /* Contabilidad Finanzas */
-Route::resource('Transacciones', Transaccion::class);
-Route::resource('TipoCuentas', TipoCuenta::class);
-Route::resource('Cuentas', Cuenta::class);
-Route::resource('DetalleTransacciones', DetalleTransaccion::class);
-Route::resource('Periodos', Periodo::class);
+Route::middleware('auth:sanctum')->prefix('ContabilidadFinanzas')->name('ContabilidadFinanzas.')->group(function ()
+{
+    Route::resource('Transacciones', TransaccionController::class);
+    Route::resource('TipoCuentas', TipoCuentaController::class);
+    Route::resource('Cuentas', CuentaController::class);
+    Route::resource('DetalleTransacciones', DetalleTransaccionController::class);
+    Route::resource('Periodos', PeriodoController::class);
+
+    Route::get('EsquemasMayor', [ ContabilidadFinanzasController::class, 'getEsquemasMayor' ])->name('EsquemasMayor.index');
+});
