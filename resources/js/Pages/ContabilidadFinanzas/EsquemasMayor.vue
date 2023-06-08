@@ -12,6 +12,15 @@ const formatCurrency = (value) => {
     return value.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 };
 
+const notEmptyTransactions = (data) => {
+    if(data.length <= 0) {
+        return [{monto: 0}]
+    } else {
+        return Object.values(data)
+    }
+}
+
+
 </script>
 <template>
     <AppLayout title="Esquemas de Mayor">
@@ -26,12 +35,12 @@ const formatCurrency = (value) => {
                 <div class="bg-white overflow-hidden p-3 shadow-xl sm:rounded-lg">
                     <div class="grid grid-cols-2 gap-3">
                         <div v-for="(esquemas, index) in detalleTransacciones" class="mt-6">
-                            <div class="block text-center font-semibold">
+                            <div class="text-center font-bold bg-purple-100 p-2">
                                 {{ index }}
                             </div>
-                            <div class="flex justify-center shadow-lg">
-                                <DataTable :value="esquemas.positivos" tableStyle="min-width: 20rem">
-                                    <Column field="monto" header="Ingresos" >
+                            <div class="flex justify-center shadow-lg text-center">
+                                <DataTable :value="notEmptyTransactions(esquemas.positivos)" tableStyle="min-width: 20rem">
+                                    <Column field="monto" header="Ingresos" class="text-center" >
                                         <template #body="{ data }">
                                             {{ formatCurrency(data.monto) }}
                                         </template>
@@ -40,7 +49,7 @@ const formatCurrency = (value) => {
                                         Total: {{ formatCurrency(esquemas.totales.totalPositivos) }}
                                     </template>
                                 </DataTable>
-                                <DataTable :value="esquemas.negativos" tableStyle="min-width: 20rem" >
+                                <DataTable :value="notEmptyTransactions(esquemas.negativos)" tableStyle="min-width: 20rem" >
                                     <Column field="monto" header="Egresos" >
                                         <template #body="{ data }">
                                             {{ formatCurrency(data.monto) }}
@@ -51,7 +60,7 @@ const formatCurrency = (value) => {
                                     </template>
                                 </DataTable>
                             </div>
-                            <div class="block text-center">
+                            <div class="p-2 text-center col-span-2 font-bold bg-purple-100">
                                 {{ formatCurrency(esquemas.totales.total) }}
                             </div>
                         </div>
