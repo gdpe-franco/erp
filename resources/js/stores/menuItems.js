@@ -30,31 +30,10 @@ export const useMenuItemsStore = defineStore("menuItem", {
                         separator: true
                     },
                     {
-                        label: 'Esquemas de mayores',
-                        icon: 'bi bi-table',
+                        label: 'Periodos',
+                        icon: 'bi bi-calendar2-range',
                         command: () => {
-                            router.visit(route('ContabilidadFinanzas.EsquemasMayor.index'))
-                        }
-                    },
-                    {
-                        label: 'Balanza de comprobación',
-                        icon: 'bi bi-file-earmark-ruled',
-                        command: () => {
-                            router.visit(route('ContabilidadFinanzas.BalanzaComprobacion.index'))
-                        }
-                    },
-                    {
-                        label: 'Balance general',
-                        icon: 'bi bi-file-earmark-spreadsheet',
-                        command: () => {
-                            router.visit(route('ContabilidadFinanzas.BalanceGeneral.index'))
-                        }
-                    },
-                    {
-                        label: 'Estado de resultados',
-                        icon: 'bi bi-file-diff-fill',
-                        command: () => {
-                            router.visit(route('ContabilidadFinanzas.EstadoResultados.index'))
+                            router.visit(route('ContabilidadFinanzas.Periodos.index'))
                         }
                     }
                 ]

@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContabilidadFinanzas\Periodo;
-use App\Http\Requests\StorePeriodoRequest;
-use App\Http\Requests\UpdatePeriodoRequest;
+use App\Http\Requests\ContabilidadFinanzas\StorePeriodoRequest;
+use App\Http\Requests\ContabilidadFinanzas\UpdatePeriodoRequest;
+use Inertia\Inertia;
 
 class PeriodoController extends Controller
 {
@@ -13,7 +14,9 @@ class PeriodoController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('ContabilidadFinanzas/Periodos/Index', [
+            'periodos' => Periodo::get()
+        ]);
     }
 
     /**
