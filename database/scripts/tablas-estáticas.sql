@@ -1,3 +1,11 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+
+/*!40101 SET NAMES utf8mb4 */;
+
 INSERT INTO
   `tipo_cuentas` (`id` , `name`)
 VALUES
@@ -83,7 +91,6 @@ VALUES
 (8, 4122, "Rendimientos", 0, 0),
 (8, 4123, "Utilidad Cambiaria", 0, 0),
 (8, 4124, "Otros Ingresos", 0, 0),
-(8, 4130, "Ventas", 0, 0),
 
 (9, 5000, "Sueldos y salarios", 0, 0),
 (9, 5001, "Vida cara", 0, 0),
@@ -116,7 +123,12 @@ VALUES
 (9, 5028, "Cuota IMMS, guarderías y prestaciones sociales", 0, 0),
 (9, 5029, "Cuota Infonavit", 0, 0),
 (9, 5030, "Impuestos Especiales", 0, 0),
-(9, 5040, "Depreciación de edificios", 0, 0)
-(9, 5050, "Costo de ventas", 0, 0),
+(9, 5040, "Depreciación de edificios", 0, 0),
+
+(9, 5097, "Mano de obra", 0, 0),
+(9, 5098, "Cargos indirectos", 0, 0),
+(9, 5190, "Gastos de administración", 0, 0),
+(9, 5299, "Gastos de ventas", 0, 0),
+(9, 5900, "Costos de ventas", 0, 0),
 (9, 5060, "Gastos de operación", 0, 0);
 
