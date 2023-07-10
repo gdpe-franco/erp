@@ -6,12 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Models\ContabilidadFinanzas\Cuenta;
 use App\Models\ContabilidadFinanzas\DetalleTransaccion;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ContabilidadFinanzasController extends Controller
 {
+    protected $cuentasEstadoR, $cuentaUtilidad;
+
+    public function __construct()
+    {
+        $this->cuentasEstadoR = DB::table('cuentas')
+            ->where('nombre', 'Ventas en el país')
+            ->orWhere('nombre', 'Costos de ventas')
+            ->orWhere('nombre', 'Gastos de operación')
+            ->pluck('id');
+
+        $this->cuentaUtilidad = DB::table('cuentas')
+            ->where('nombre', 'Utilidad (perdida) del ejercicio')->first();
+    }
     public function getEsquemasMayor () 
     {
+
         $detalleTransacciones = DetalleTransaccion::select('id', 'cuenta_id', 'transaccion_id', 'monto')->with([
             'cuenta:id,tipo_cuenta_id,nombre' => [
                 'tipoCuenta:id,name'
@@ -57,7 +72,7 @@ class ContabilidadFinanzasController extends Controller
                 ],
                 'transaccion:id,detalles,fecha'
             ])
-            ->where('cuenta_id', '!=', 54)
+            ->where('cuenta_id', '!=', $this->cuentaUtilidad->id) //Utilidad perdida del ejercicio
             ->get();
 
         $cuentasTransacciones = $detalleTransacciones->groupBy('cuenta.nombre');
@@ -105,7 +120,7 @@ class ContabilidadFinanzasController extends Controller
             ],
             'transaccion:id,detalles,fecha'
         ])
-        ->whereIn('cuenta_id', [95, 96, 97])
+        ->whereIn('cuenta_id', $this->cuentasEstadoR) //Ventas, costos de ventas, gastos de operacion
         ->get();
 
         $estadoResultados = collect([]);
@@ -114,11 +129,11 @@ class ContabilidadFinanzasController extends Controller
         $sumaGastosOperacion = 0;
 
         foreach($detalleTransacciones as $transaccion){
-            if($transaccion['cuenta_id'] == 95) {
+            if($transaccion['cuenta_id'] == $this->cuentasEstadoR[0]) {
                 $sumaVentas += $transaccion['monto'];
-            } elseif ($transaccion['cuenta_id'] == 96) {
+            } elseif ($transaccion['cuenta_id'] == $this->cuentasEstadoR[1]) {
                 $sumaCostoVentas += $transaccion['monto'];
-            } elseif ($transaccion['cuenta_id'] == 97) {
+            } elseif ($transaccion['cuenta_id'] == $this->cuentasEstadoR[2]) {
                 $sumaGastosOperacion += $transaccion['monto'];
             } else {
             }
@@ -127,7 +142,7 @@ class ContabilidadFinanzasController extends Controller
         $utilidadBruta = $sumaVentas + $sumaCostoVentas;
         $utilidadEjercicio = $utilidadBruta + $sumaGastosOperacion;
         
-        $transaccionUtilidad = DetalleTransaccion::where('cuenta_id', 54)->first();
+        $transaccionUtilidad = DetalleTransaccion::where('cuenta_id', $this->cuentaUtilidad->id)->first();
         $transaccionUtilidad->monto = $utilidadEjercicio;
         $transaccionUtilidad->save();
         
@@ -144,7 +159,7 @@ class ContabilidadFinanzasController extends Controller
 
     public function getBalanceGeneral ()
     {
-        $detalleTransacciones = DetalleTransaccion::whereNotIn('cuenta_id', [95, 96, 97])->pluck('cuenta_id');
+        $detalleTransacciones = DetalleTransaccion::whereNotIn('cuenta_id', $this->cuentasEstadoR)->pluck('cuenta_id');
         $cuentasId = $detalleTransacciones->unique()->values();
 
         $cuentas = Cuenta::with(['detalleTransacciones', 'tipoCuenta:id,name'])

@@ -62,8 +62,10 @@ const closed = () => {
                     placeholder="Seleccion una cuenta" filter>
                     <template #value="{ value, placeholder }">
                         <div v-if="value" class="flex items-center">
+                            <div class="mx-2">{{ value.clave }}</div>
                             <div class="mx-2">{{ value.nombre }}</div>
-                            <Tag :value="opcionesCuentas[value.tipo_cuenta_id].nombre"
+                            <Tag class="ms-2" 
+                                :value="opcionesCuentas[value.tipo_cuenta_id].nombre"
                                 :severity="opcionesCuentas[value.tipo_cuenta_id].severity" />
                         </div>
                         <span v-else>
@@ -72,8 +74,10 @@ const closed = () => {
                     </template>
                     <template #option="{ option }">
                         <div class="flex items-center">
+                            <div class="mx-2">{{ option.clave }}</div>
                             <div class="mx-2">{{ option.nombre }}</div>
-                            <Tag :value="opcionesCuentas[option.tipo_cuenta_id].nombre"
+                            <Tag class="ms-2"
+                                :value="opcionesCuentas[option.tipo_cuenta_id].nombre"
                                 :severity="opcionesCuentas[option.tipo_cuenta_id].severity" />
                         </div>
                     </template>

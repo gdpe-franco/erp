@@ -20,7 +20,7 @@ class DetalleTransaccionController extends Controller
     {
         return Inertia::render('ContabilidadFinanzas/DetalleTransacciones/Index', [
             'detalleTransacciones' => DetalleTransaccion::with([
-                'cuenta',
+                'cuenta' => ['tipoCuenta'],
                 'transaccion'
             ])->get(),
             'cuentas' => Cuenta::get()
