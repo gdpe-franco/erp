@@ -5,7 +5,8 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
 const props = defineProps({
-    balanceGeneral: Object
+    balanceGeneral: Object,
+    periodo: Object
 })
 
 const expandedRowGroups = ref();
@@ -56,6 +57,7 @@ const deudorMovimientos = computed(() => {
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Balance General
             </h2>
+            <h3>Periodo: {{ periodo.nombre }}</h3>
         </template>
 
         <div class="py-12">

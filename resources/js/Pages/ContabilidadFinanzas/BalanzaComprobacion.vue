@@ -7,7 +7,8 @@ import ColumnGroup from 'primevue/columngroup';
 import Row from 'primevue/row';
 
 const props = defineProps({
-    balanzas: Object
+    balanzas: Object,
+    periodo: Object
 })
 
 const balanzasKeys = Object.keys(props.balanzas)
@@ -57,6 +58,7 @@ const acreedorSaldos = computed(() => {
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Balanza de Comprobación
             </h2>
+            <h3>Periodo: {{ periodo.nombre }}</h3>
         </template>
 
         <div class="py-12">

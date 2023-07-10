@@ -49,8 +49,8 @@ Route::middleware('auth:sanctum')->prefix('ContabilidadFinanzas')->name('Contabi
     Route::resource('DetalleTransacciones', DetalleTransaccionController::class);
     Route::resource('Periodos', PeriodoController::class);
 
-    Route::get('EsquemasMayor', [ ContabilidadFinanzasController::class, 'getEsquemasMayor' ])->name('EsquemasMayor.index');
-    Route::get('BalanzaComprobacion', [ ContabilidadFinanzasController::class, 'getBalanzaComprobacion' ])->name('BalanzaComprobacion.index');
-    Route::get('EstadoResultados', [ ContabilidadFinanzasController::class, 'getEstadoResultados' ])->name('EstadoResultados.index');
-    Route::get('BalanceGeneral', [ ContabilidadFinanzasController::class, 'getBalanceGeneral' ])->name('BalanceGeneral.index');
+    Route::get('EsquemasMayor/{periodo_id}', [ ContabilidadFinanzasController::class, 'getEsquemasMayor' ])->name('EsquemasMayor.index');
+    Route::get('BalanzaComprobacion/{periodo_id}', [ ContabilidadFinanzasController::class, 'getBalanzaComprobacion' ])->name('BalanzaComprobacion.index');
+    Route::get('EstadoResultados/{periodo_id}', [ ContabilidadFinanzasController::class, 'getEstadoResultados' ])->name('EstadoResultados.index');
+    Route::get('BalanceGeneral/{periodo_id}', [ ContabilidadFinanzasController::class, 'getBalanceGeneral' ])->name('BalanceGeneral.index');
 });

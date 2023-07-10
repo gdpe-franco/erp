@@ -4,7 +4,8 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import DataView from 'primevue/dataview';
 
 const props = defineProps({
-    estadoResultados: Object
+    estadoResultados: Object,
+    periodo: Object
 });
 
 const dataEstadoResultados = ref(null);
@@ -28,6 +29,7 @@ onBeforeMount(() => {
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Estado de Resultados
             </h2>
+            <h3>Periodo: {{ periodo.nombre }}</h3>
         </template>
 
         <div class="py-12">

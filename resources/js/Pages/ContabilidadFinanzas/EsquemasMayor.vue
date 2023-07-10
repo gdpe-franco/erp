@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
 
 const props = defineProps({
-    detalleTransacciones: Object
+    detalleTransacciones: Object,
+    periodo: Object
 })
 
 const formatCurrency = (value) => {
@@ -19,17 +20,15 @@ const notEmptyTransactions = (data) => {
         return Object.values(data)
     }
 }
-
-
 </script>
 <template>
     <AppLayout title="Esquemas de Mayor">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Esquema de Mayor
+                Esquemas de Mayor
             </h2>
+            <h3>Periodo: {{ periodo.nombre }}</h3>
         </template>
-
         <div class="py-12">
             <div class="max-w-full mx-auto sm:px-6">
                 <div class="bg-white overflow-hidden p-3 shadow-xl sm:rounded-lg">
