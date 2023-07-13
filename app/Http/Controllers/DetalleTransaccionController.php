@@ -55,11 +55,12 @@ class DetalleTransaccionController extends Controller
                 'monto' => $detallesTransaccion['monto']
             ]);
 
-            return back()->with(
-                [
-                    'backgroundNotification' => 'success',
-                ]
-            );
+            return back()->with([
+                'backgroundNotification' => 'success',
+                'titleNotification' => '¡Éxito!',
+                'messageNotification' => 'Transacción y detalles creados correctamente.',
+                'lifeNotification' => 5000
+            ]);
 
         } catch (Error $e) {
             dd($e);

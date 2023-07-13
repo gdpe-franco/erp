@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import ApplicationMark from '@/Components/ApplicationMark.vue';
 import Banner from '@/Components/Banner.vue';
 import Dropdown from '@/Components/Dropdown.vue';
@@ -10,14 +10,30 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
 //PrimeVue
 import Menubar from 'primevue/menubar';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
 // Pinia
 import { useMenuItemsStore } from '@/stores/menuItems.js';
 
 defineProps({
     title: String,
+    flash: Object
 });
 
+const toast = useToast();
+const showToast = computed(() => usePage().props.flash);
+watch(showToast, (newData) => {
+    if(Object.values(newData).includes(null)) {
+        return;
+    } 
+    toast.add({
+        severity: newData.backgroundNotification,
+        summary: newData.titleNotification,
+        detail: newData.messageNotification,
+        life: newData.lifeNotification
+    })
+})
 const useMenuItems = useMenuItemsStore()
 
 const showingNavigationDropdown = ref(false);
@@ -293,6 +309,7 @@ const logout = () => {
 
             <!-- Page Content -->
             <main>
+                <Toast position="bottom-right"/>
                 <slot />
             </main>
         </div>
