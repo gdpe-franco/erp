@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\ContabilidadFinanzas\Periodo;
 use App\Http\Requests\ContabilidadFinanzas\StorePeriodoRequest;
 use App\Http\Requests\ContabilidadFinanzas\UpdatePeriodoRequest;
+use Carbon\Carbon;
+use Error;
 use Inertia\Inertia;
 
 class PeriodoController extends Controller
@@ -32,7 +34,21 @@ class PeriodoController extends Controller
      */
     public function store(StorePeriodoRequest $request)
     {
-        //
+        $periodo = $request->validated();
+        $periodo['fecha_inicio'] = Carbon::parse($periodo['fecha_inicio'])->toDateString();
+        $periodo['fecha_fin'] = Carbon::parse($periodo['fecha_fin'])->toDateString();
+        
+        try {
+            Periodo::create($periodo);
+            return back()->with([
+                'backgroundNotification' => 'success',
+                'titleNotification' => '¡Éxito!',
+                'messageNotification' => 'Periodo creado correctamente.',
+                'lifeNotification' => 5000
+            ]);
+        } catch (Error $e) {
+            dd($e);
+        }
     }
 
     /**

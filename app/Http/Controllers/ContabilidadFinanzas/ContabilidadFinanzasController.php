@@ -7,6 +7,7 @@ use App\Models\ContabilidadFinanzas\Cuenta;
 use App\Models\ContabilidadFinanzas\DetalleTransaccion;
 use App\Models\ContabilidadFinanzas\Periodo;
 use App\Models\ContabilidadFinanzas\Transaccion;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -166,6 +167,20 @@ class ContabilidadFinanzasController extends Controller
         $transaccionUtilidad = DetalleTransaccion::where('cuenta_id', $this->cuentaUtilidad->id)
             ->whereIn('transaccion_id', $transaccionesPeriodo)
             ->first();
+            /* ->firstOr(function () use ($periodo) {
+                $nombrePeriodo = $periodo['nombre'];
+
+                $transaccion = Transaccion::create([
+                    'detalles' => `Transacción de Utilidad del ejercicio de {$nombrePeriodo}`,
+                    'fecha' => Carbon::now()->format('Y-m-d')
+                ]);
+                
+                DetalleTransaccion::create([
+                    'cuenta_id' => $this->cuentaUtilidad->id,
+                    'transaccion_id' => $transaccion['id'],
+                    'monto' => '0'
+                ]);
+            }); */
         $transaccionUtilidad->monto = $utilidadEjercicio;
         $transaccionUtilidad->save();
         
@@ -183,25 +198,32 @@ class ContabilidadFinanzasController extends Controller
         ]);
     }
 
-    public function getBalanceGeneral (int $periodo_id)
+    public function getBalanceGeneral (int $periodo_id) 
     {
         $periodo = Periodo::find($periodo_id);
 
         $transaccionesPeriodo = $this->getTransaccionesPeriodo($periodo->fecha_inicio, $periodo->fecha_fin);
-
+        
         $detalleTransacciones = DetalleTransaccion::whereIn('transaccion_id', $transaccionesPeriodo)
             ->whereNotIn('cuenta_id', $this->cuentasEstadoR)
             ->pluck('cuenta_id');
         $cuentasId = $detalleTransacciones->unique()->values();
 
-        $cuentas = Cuenta::with(['detalleTransacciones', 'tipoCuenta:id,name'])
-            ->whereIn('id', $cuentasId)->get();
-            
+        $cuentas = Cuenta::select('id', 'tipo_cuenta_id', 'clave', 'nombre')
+            ->whereIn('id', $cuentasId)
+            ->with([
+                'tipoCuenta:id,name',
+                'detalleTransacciones' => function ($query) use ($transaccionesPeriodo) {
+                    $query->whereIn('transaccion_id', $transaccionesPeriodo);
+                }
+            ])
+            ->get();
+
         foreach($cuentas as $cuenta){
             $cuenta->total = 0;
             
-            foreach($cuenta->detalleTransacciones as $transaccion) {
-                $cuenta->total += $transaccion['monto'];
+            foreach($cuenta->detalleTransacciones as $detalleTransaccion) {
+                $cuenta->total += $detalleTransaccion['monto'];
             }
         }
 
