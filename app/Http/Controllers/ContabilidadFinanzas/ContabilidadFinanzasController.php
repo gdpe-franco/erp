@@ -14,7 +14,7 @@ use Inertia\Inertia;
 
 class ContabilidadFinanzasController extends Controller
 {
-    protected $cuentasEstadoR, $cuentaUtilidad;
+    protected $cuentasEstadoR, $cuentaUtilidad, $cuentaImpuestosDerechos;
 
     public function __construct()
     {
@@ -22,10 +22,14 @@ class ContabilidadFinanzasController extends Controller
             ->where('nombre', 'Ventas en el país')
             ->orWhere('nombre', 'Costos de ventas')
             ->orWhere('nombre', 'Gastos de operación')
+            ->orWhere('nombre', 'Gastos de ventas')
+            ->orWhere('nombre', 'Gastos de administración')
             ->pluck('id');
 
         $this->cuentaUtilidad = DB::table('cuentas')
             ->where('nombre', 'Utilidad (perdida) del ejercicio')->first();
+        $this->cuentaImpuestosDerechos = DB::table('cuentas')
+            ->where('nombre', 'Impuestos y derechos por pagar')->first();
     }
 
     function getTransaccionesPeriodo (string $fecha_inicio, string $fecha_fin) {
@@ -131,6 +135,119 @@ class ContabilidadFinanzasController extends Controller
         ]);
     }
 
+    public function getEstadoCostos (int $periodo_id)
+    {
+        $periodo = Periodo::find($periodo_id);
+        $cuentasProduccionVentas = array(6, 7, 8, 96);
+        $estadoCostos = (object)[
+            'Inventario inicial de materias primas' => 0,
+            'Costo de materias primas recibidas' => 0,
+            'Total positivo de materias primas' => 0,
+            'Inventario final de materias' => 0,
+            'Total de materias primas utilizadas' => 0,
+            'Costo de materias primas indirectas utilizadas' => 0,
+            'Costo de materias primas directas' => 0,
+            'Mano de obra directa utilizada' => 0,
+            'COSTO PRIMO' => 0,
+            'Cargos indirectos' => 0,
+            'Costo de producción procesada' => 0,
+            'Inventario inicial de producción en proceso' => 0,
+            'Producción en proceso disponible' => 0,
+            'Inventario final de producción en proceso' => 0,
+            'Costo de producción terminada' => 0,
+            'Inventario inicial de producto terminado' => 0,
+            'Productos terminados en disponibilidad' => 0,
+            'Inventario final de producto terminado' => 0,
+            'COSTO DE PRODUCTOS VENDIDOS' => 0
+        ];
+        $transaccionesPeriodo = $this->getTransaccionesPeriodo($periodo->fecha_inicio, $periodo->fecha_fin);
+        $detalleTransacciones = DetalleTransaccion::select('id', 'cuenta_id', 'transaccion_id', 'monto')
+            ->with([
+                'cuenta:id,tipo_cuenta_id,nombre' => [
+                    'tipoCuenta:id,name'
+                ],
+                'transaccion:id,detalles,fecha'
+            ])
+            ->whereIn('transaccion_id', $transaccionesPeriodo)
+            ->whereIn('cuenta_id',  $cuentasProduccionVentas) 
+            ->get();
+
+        $cuentasTotales = collect([]);
+        $cuentasTransacciones = $detalleTransacciones->groupBy('cuenta.id');
+        foreach ($cuentasTransacciones as $transaccion) {
+            [$positivos, $negativos] = $transaccion->partition(function ($detalle) {
+                return $detalle->monto > 0;
+            });
+
+            $sumaPositivos = $positivos->sum('monto');
+            $sumaNegativos = $negativos->sum('monto');
+            $cuentasTotales->push([
+                'totales' => (object)[
+                    'total' => $transaccion->sum('monto'),
+                    'totalPositivos' => $sumaPositivos,
+                    'totalNegativos' => $sumaNegativos
+                ], 
+                'cuenta_id' => $transaccion[0]['cuenta_id']
+            ]);
+        }
+
+        foreach($detalleTransacciones as $detalleTransaccion) {
+            if($detalleTransaccion['cuenta_id'] == 6){
+                if($detalleTransaccion['transaccion']['detalles'] == 'Saldo inicial') {
+                    $estadoCostos->{'Inventario inicial de materias primas'} = $detalleTransaccion['monto'];
+                } elseif($detalleTransaccion['monto'] > 0) {
+                    $estadoCostos->{'Costo de materias primas recibidas'} += $detalleTransaccion['monto'];
+                }
+            } elseif($detalleTransaccion['cuenta_id'] == 96) {
+                if($detalleTransaccion['monto'] > 0) {
+                    if(str_contains($detalleTransaccion['transaccion']['detalles'], 'materia prima')) {
+                        $estadoCostos->{'Costo de materias primas indirectas utilizadas'} += $detalleTransaccion['monto'];
+                    }
+                }
+            } elseif($detalleTransaccion['cuenta_id'] == 7) {
+                if($detalleTransaccion['transaccion']['detalles'] == 'Saldo inicial'){
+                    $estadoCostos->{'Inventario inicial de producción en proceso'} = $detalleTransaccion['monto'];
+                } elseif($detalleTransaccion['monto'] > 0) {
+                    if(str_contains($detalleTransaccion['transaccion']['detalles'], 'materia prima')) {
+                        $estadoCostos->{'Costo de materias primas directas'} += $detalleTransaccion['monto'];
+                    } else if(str_contains($detalleTransaccion['transaccion']['detalles'], 'mano de obra')) {
+                        $estadoCostos->{'Mano de obra directa utilizada'} += $detalleTransaccion['monto'];
+                    }
+                }
+            } elseif($detalleTransaccion['cuenta_id'] == 8) {
+                if($detalleTransaccion['transaccion']['detalles'] == 'Saldo inicial'){
+                    $estadoCostos->{'Inventario inicial de producto terminado'} = $detalleTransaccion['monto'];
+                }
+            }
+        }
+
+        foreach($cuentasTotales as $cuenta) {
+            if($cuenta['cuenta_id'] == 6){
+                $estadoCostos->{'Total positivo de materias primas'} = $cuenta['totales']->{'totalPositivos'};
+                $estadoCostos->{'Inventario final de materias'} = $cuenta['totales']->{'total'};
+                $estadoCostos->{'Total de materias primas utilizadas'} = $cuenta['totales']->{'totalNegativos'};
+            } elseif($cuenta['cuenta_id'] == 7){
+                $estadoCostos->{'Inventario final de producción en proceso'} = $cuenta['totales']->{'total'};
+                $estadoCostos->{'Producción en proceso disponible'} = $cuenta['totales']->{'totalPositivos'};
+                $estadoCostos->{'Costo de producción terminada'} = $cuenta['totales']->{'totalNegativos'};
+            } elseif ($cuenta['cuenta_id'] == 8) {
+                $estadoCostos->{'Productos terminados en disponibilidad'} = $cuenta['totales']->{'totalPositivos'};
+                $estadoCostos->{'Inventario final de producto terminado'} = $cuenta['totales']->{'total'};
+            } elseif($cuenta['cuenta_id'] == 96) {
+                $estadoCostos->{'Cargos indirectos'} = $cuenta['totales']->{'totalPositivos'};
+            }
+            
+        }
+        $estadoCostos->{'COSTO PRIMO'} = $estadoCostos->{'Costo de materias primas directas'} + $estadoCostos->{'Mano de obra directa utilizada'};
+        $estadoCostos->{'Costo de producción procesada'} = $estadoCostos->{'COSTO PRIMO'} + $estadoCostos->{'Cargos indirectos'};
+        $estadoCostos->{'COSTO DE PRODUCTOS VENDIDOS'} = $estadoCostos->{'Productos terminados en disponibilidad'} - $estadoCostos->{'Inventario final de producto terminado'};
+        
+        return Inertia::render('ContabilidadFinanzas/EstadoResultados', [
+            'estadoResultados' => $estadoCostos,
+            'periodo' => $periodo
+        ]);
+    }
+
     public function getEstadoResultados (int $periodo_id) 
     {
         $periodo = Periodo::find($periodo_id);
@@ -148,21 +265,29 @@ class ContabilidadFinanzasController extends Controller
             ->whereIn('cuenta_id', $this->cuentasEstadoR) // Ventas, costos de ventas, gastos de operacion
             ->get();
 
-        $sumaVentas = 0; $sumaCostoVentas = 0; $sumaGastosOperacion = 0;
+        $sumaVentas = 0; $sumaCostoVentas = 0; $sumaGastos = 0;
 
         foreach($detalleTransacciones as $transaccion) { /* Falta considerar otras cuentas de ingresos y egresos */
             if($transaccion['cuenta_id'] == $this->cuentasEstadoR[0]) {
                 $sumaVentas += $transaccion['monto'];
-            } elseif ($transaccion['cuenta_id'] == $this->cuentasEstadoR[1]) {
+            } elseif ($transaccion['cuenta_id'] == $this->cuentasEstadoR[3]) {
                 $sumaCostoVentas += $transaccion['monto'];
-            } elseif ($transaccion['cuenta_id'] == $this->cuentasEstadoR[2]) {
-                $sumaGastosOperacion += $transaccion['monto'];
+            } elseif ($transaccion['cuenta_id'] == $this->cuentasEstadoR[1] ||
+                $transaccion['cuenta_id'] == $this->cuentasEstadoR[2] || 
+                $transaccion['cuenta_id'] == $this->cuentasEstadoR[4]) {
+                $sumaGastos += $transaccion['monto'];
             } else {
             }
         }
 
         $utilidadBruta = $sumaVentas + $sumaCostoVentas;
-        $utilidadEjercicio = $utilidadBruta + $sumaGastosOperacion;
+        $utilidadOperacion = $utilidadBruta + $sumaGastos;
+        $otrosIngresos = 0;
+        $otrosGastos = 0;
+        $utilidadBImpuestos = $utilidadOperacion + $otrosIngresos - $otrosGastos;
+        $ptu = $utilidadBImpuestos * 0.1;
+        $isr = $utilidadBImpuestos * 0.3;
+        $utilidadEjercicio = $utilidadBImpuestos - $ptu - $isr;
         
         $transaccionUtilidad = DetalleTransaccion::where('cuenta_id', $this->cuentaUtilidad->id)
             ->whereIn('transaccion_id', $transaccionesPeriodo)
@@ -184,11 +309,23 @@ class ContabilidadFinanzasController extends Controller
         $transaccionUtilidad->monto = $utilidadEjercicio;
         $transaccionUtilidad->save();
         
+        $transaccionImpuestosDerechos = DetalleTransaccion::where('cuenta_id', $this->cuentaImpuestosDerechos->id)
+            ->whereIn('transaccion_id', $transaccionesPeriodo)
+            ->first();
+        $transaccionImpuestosDerechos->monto = $ptu + $isr;
+        $transaccionImpuestosDerechos->save();
+
         $estadoResultados = collect([
             'Ventas' => $sumaVentas,
             'Costo de Ventas' => $sumaCostoVentas,
             'Utilidad bruta' => $utilidadBruta,
-            'Gastos de operación' => $sumaGastosOperacion,
+            'Gastos de operación' => $sumaGastos,
+            'Utilidad de operacion' => $utilidadOperacion,
+            'Otros ingresos' => $otrosIngresos,
+            'Otros gastos' => $otrosGastos,
+            'Utilidad antes de impuestos' => $utilidadBImpuestos,
+            'PTU' => $ptu,
+            'IRS' => $isr,
             'Utilidad del ejercicio' => $utilidadEjercicio
         ]);
 

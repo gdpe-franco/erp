@@ -21,7 +21,7 @@ const calculateTotals = (ids) => {
     if (props.balanceGeneral) {
         for (let cuenta of props.balanceGeneral) {
             if (ids.includes(cuenta.tipo_cuenta_id)) {
-                total += Math.abs(cuenta.total);
+                total += cuenta.total;
             }
         }
     }
@@ -34,7 +34,7 @@ const calculateTypeAccountTotal = (id) => {
     if (props.balanceGeneral) {
         for (let cuenta of props.balanceGeneral) {
             if (cuenta.tipo_cuenta_id === id) {
-                total += Math.abs(cuenta.total);
+                total += cuenta.total;
             }
         }
     }

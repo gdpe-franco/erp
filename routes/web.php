@@ -53,4 +53,5 @@ Route::middleware('auth:sanctum')->prefix('ContabilidadFinanzas')->name('Contabi
     Route::get('BalanzaComprobacion/{periodo_id}', [ ContabilidadFinanzasController::class, 'getBalanzaComprobacion' ])->name('BalanzaComprobacion.index');
     Route::get('EstadoResultados/{periodo_id}', [ ContabilidadFinanzasController::class, 'getEstadoResultados' ])->name('EstadoResultados.index');
     Route::get('BalanceGeneral/{periodo_id}', [ ContabilidadFinanzasController::class, 'getBalanceGeneral' ])->name('BalanceGeneral.index');
+    Route::get('EstadoCostos/{periodo_id}', [ ContabilidadFinanzasController::class, 'getEstadoCostos' ])->name('EstadoCostos.index');
 });

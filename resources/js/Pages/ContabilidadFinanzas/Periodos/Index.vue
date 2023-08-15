@@ -56,6 +56,10 @@ const openCreateDialog = () => {
                                         <Button type="button" icon="bi bi-file-earmark-ruled" size="small" 
                                             severity="help" v-tooltip.top="'Balanza de comprobación'" rounded />
                                     </Link>
+                                    <Link :href="route('ContabilidadFinanzas.EstadoCostos.index', data.id)">
+                                        <Button type="button" icon="bi bi-cash-stack" size="small" 
+                                            severity="help" v-tooltip.top="'Estado de costos de producción y ventas'" rounded />
+                                    </Link>
                                     <Link :href="route('ContabilidadFinanzas.EstadoResultados.index', data.id)">
                                         <Button type="button" icon="bi bi-file-diff-fill" size="small" 
                                             severity="help" v-tooltip.top="'Estado de resultados'" rounded />
