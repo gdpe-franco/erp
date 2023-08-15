@@ -55,3 +55,10 @@ Route::middleware('auth:sanctum')->prefix('ContabilidadFinanzas')->name('Contabi
     Route::get('BalanceGeneral/{periodo_id}', [ ContabilidadFinanzasController::class, 'getBalanceGeneral' ])->name('BalanceGeneral.index');
     Route::get('EstadoCostos/{periodo_id}', [ ContabilidadFinanzasController::class, 'getEstadoCostos' ])->name('EstadoCostos.index');
 });
+
+Route::middleware('auth:sanctum')->prefix('RecursosHumanos')->name('RecursosHumanos.')->group(function ()
+{
+    Route::get('Nomina', function(){
+        return Inertia::render('RecursosHumanos/Nomina');
+    })->name('Nomina.index');
+});

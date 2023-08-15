@@ -44,11 +44,20 @@ export const useMenuItemsStore = defineStore("menuItem", {
             },
             {
                 label: 'Producción',
-                icon: 'bi bi-nut-fill'
+                icon: 'bi bi-nut-fill',
             },
             {
                 label: 'Recursos Humanos',
-                icon: 'bi bi-people-fill'
+                icon: 'bi bi-people-fill',
+                items: [
+                    {
+                        label: 'Nóminas',
+                        icon: '',
+                        command: () => {
+                            router.visit(route('RecursosHumanos.Nomina.index'))
+                         }
+                    },
+                ]
             }
         ]
     })
